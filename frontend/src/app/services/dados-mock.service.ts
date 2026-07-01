@@ -16,13 +16,6 @@ export interface AlunoRelacionado {
   saldoMoedas: number;
 }
 
-export interface BeneficioVendido {
-  id: number;
-  nome: string;
-  resgates: number;
-  receitaMoedas: number;
-}
-
 @Injectable({ providedIn: 'root' })
 export class DadosMockService {
   private readonly saldoAlunoSignal = signal(420);
@@ -60,12 +53,6 @@ export class DadosMockService {
       custoMoedas: 220,
       descricao: 'Voucher para livros, apostilas e materiais complementares.',
     },
-  ];
-
-  readonly beneficiosMaisVendidos: BeneficioVendido[] = [
-    { id: 1, nome: 'Desconto em cafeteria', resgates: 86, receitaMoedas: 10320 },
-    { id: 2, nome: 'Material de estudos', resgates: 54, receitaMoedas: 11880 },
-    { id: 3, nome: 'Mentoria de carreira', resgates: 31, receitaMoedas: 9300 },
   ];
 
   distribuirMoedas(alunoId: number, quantidade: number): boolean {

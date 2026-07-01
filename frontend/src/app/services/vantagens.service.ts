@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config/api.config';
 import { PaginaResponse } from '../models/paginacao.models';
 import {
   AprovarUtilizacaoResgateRequest,
+  BeneficioMaisResgatado,
   ResgateResponse,
   ResgateVerificacao,
   SalvarVantagemRequest,
@@ -18,6 +19,12 @@ export class VantagensService {
 
   listarMinhasVantagens(): Observable<Vantagem[]> {
     return this.httpClient.get<Vantagem[]>(`${API_BASE_URL}/empresas/me/vantagens`);
+  }
+
+  listarBeneficiosMaisResgatados(): Observable<BeneficioMaisResgatado[]> {
+    return this.httpClient.get<BeneficioMaisResgatado[]>(
+      `${API_BASE_URL}/empresas/me/vantagens/mais-resgatados`,
+    );
   }
 
   listarVantagensDisponiveis(page: number, size: number): Observable<PaginaResponse<Vantagem>> {

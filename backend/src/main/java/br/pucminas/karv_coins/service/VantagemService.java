@@ -1,11 +1,13 @@
 package br.pucminas.karv_coins.service;
 
 import br.pucminas.karv_coins.dto.request.SalvarVantagemRequestDto;
+import br.pucminas.karv_coins.dto.response.BeneficioMaisResgatadoResponseDto;
 import br.pucminas.karv_coins.dto.response.PaginaResponseDto;
 import br.pucminas.karv_coins.dto.response.VantagemResponseDto;
 import br.pucminas.karv_coins.model.Empresa;
 import br.pucminas.karv_coins.model.Vantagem;
 import br.pucminas.karv_coins.repository.EmpresaRepository;
+import br.pucminas.karv_coins.repository.ResgateRepository;
 import br.pucminas.karv_coins.repository.VantagemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
@@ -19,10 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class VantagemService {
     private final VantagemRepository vantagemRepository;
     private final EmpresaRepository empresaRepository;
+    private final ResgateRepository resgateRepository;
 
-    public VantagemService(VantagemRepository vantagemRepository, EmpresaRepository empresaRepository) {
+    public VantagemService(VantagemRepository vantagemRepository, EmpresaRepository empresaRepository,
+                           ResgateRepository resgateRepository) {
         this.vantagemRepository = vantagemRepository;
         this.empresaRepository = empresaRepository;
+        this.resgateRepository = resgateRepository;
     }
 
     @Transactional(readOnly = true)
@@ -32,6 +37,12 @@ public class VantagemService {
                 .stream()
                 .map(VantagemResponseDto::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAuthority('EMPRESA')")
+    public List<BeneficioMaisResgatadoResponseDto> listarMaisResgatados(String emailEmpresa) {
+        return resgateRepository.findRankingResgatesByEmpresaEmail(emailEmpresa);
     }
 
     @Transactional(readOnly = true)

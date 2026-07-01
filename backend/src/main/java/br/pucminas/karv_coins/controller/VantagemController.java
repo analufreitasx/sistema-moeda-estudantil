@@ -1,6 +1,7 @@
 package br.pucminas.karv_coins.controller;
 
 import br.pucminas.karv_coins.dto.request.SalvarVantagemRequestDto;
+import br.pucminas.karv_coins.dto.response.BeneficioMaisResgatadoResponseDto;
 import br.pucminas.karv_coins.dto.response.VantagemResponseDto;
 import br.pucminas.karv_coins.service.VantagemService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +37,13 @@ public class VantagemController {
     @Operation(summary = "Listar vantagens da empresa autenticada")
     public ResponseEntity<List<VantagemResponseDto>> listarMinhasVantagens(@AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(vantagemService.listarMinhasVantagens(jwt.getSubject()));
+    }
+
+    @GetMapping("/mais-resgatados")
+    @Operation(summary = "Ranking de benefícios mais resgatados da empresa autenticada")
+    public ResponseEntity<List<BeneficioMaisResgatadoResponseDto>> listarMaisResgatados(
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(vantagemService.listarMaisResgatados(jwt.getSubject()));
     }
 
     @PostMapping

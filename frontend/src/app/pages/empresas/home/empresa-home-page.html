@@ -11,18 +11,28 @@
     </div>
 
     <div class="mt-8 overflow-hidden rounded-[2rem] border border-primary-300/15 bg-night-900/80 shadow-2xl shadow-primary-950/25">
-      <div class="grid gap-4 border-b border-primary-300/15 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-primary-100 md:grid-cols-[1fr_10rem]">
+      <div class="grid gap-4 border-b border-primary-300/15 px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-primary-100 md:grid-cols-[1fr_8rem_8rem]">
         <span>Benefício</span>
         <span>Resgates</span>
+        <span>Utilizados</span>
       </div>
-      <div class="divide-y divide-primary-300/10">
-        @for (beneficio of beneficiosMaisVendidos; track beneficio.id) {
-          <article class="grid gap-3 px-6 py-5 md:grid-cols-[1fr_10rem] md:items-center">
-            <h2 class="font-brand text-lg font-bold text-white">{{ beneficio.nome }}</h2>
-            <p class="text-sm text-slate-300">{{ beneficio.resgates }} resgates</p>
-          </article>
-        }
-      </div>
+      @if (carregando()) {
+        <p class="px-6 py-8 text-sm text-slate-300">Carregando ranking…</p>
+      } @else {
+        <div class="divide-y divide-primary-300/10">
+          @for (beneficio of beneficiosMaisResgatados(); track beneficio.id) {
+            <article class="grid gap-3 px-6 py-5 md:grid-cols-[1fr_8rem_8rem] md:items-center">
+              <h2 class="font-brand text-lg font-bold text-white">{{ beneficio.descricao }}</h2>
+              <p class="text-sm text-slate-300">{{ beneficio.resgates }} resgates</p>
+              <p class="text-sm text-slate-300">{{ beneficio.utilizados }} utilizados</p>
+            </article>
+          } @empty {
+            <p class="px-6 py-8 text-sm text-slate-300">
+              Nenhum benefício foi resgatado ainda. Assim que os alunos resgatarem suas ofertas, o ranking aparecerá aqui.
+            </p>
+          }
+        </div>
+      }
     </div>
   </section>
 </main>

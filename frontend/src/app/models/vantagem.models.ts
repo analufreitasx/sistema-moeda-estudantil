@@ -7,6 +7,13 @@ export interface Vantagem {
   nomeEmpresa: string;
 }
 
+export interface BeneficioMaisResgatado {
+  id: number;
+  descricao: string;
+  resgates: number;
+  utilizados: number;
+}
+
 export interface SalvarVantagemRequest {
   descricao: string;
   fotoUrl: string;
