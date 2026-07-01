@@ -1,11 +1,14 @@
 package br.pucminas.karv_coins.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import br.pucminas.karv_coins.config.MailProperties;
 import br.pucminas.karv_coins.dto.notification.TransacaoNotificacaoDto;
+import jakarta.mail.Multipart;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,11 +30,11 @@ class EmailNotificationServiceTest {
 
         service.notificarRecebimentoAluno(transacao());
 
-        assertEquals(0, mailSender.mensagensEnviadas.size());
+        assertEquals(0, mailSender.mensagensMimeEnviadas.size());
     }
 
     @Test
-    void enviaMensagemQuandoEmailEstaHabilitado() {
+    void enviaMensagemHtmlQuandoEmailEstaHabilitado() throws Exception {
         FakeJavaMailSender mailSender = new FakeJavaMailSender();
         EmailNotificationService service = new EmailNotificationService(
                 new MailProperties(true, true, "noreply@karvcoins.local", "KarvCoins"),
@@ -40,11 +43,18 @@ class EmailNotificationServiceTest {
 
         service.notificarRecebimentoAluno(transacao());
 
-        assertEquals(1, mailSender.mensagensEnviadas.size());
-        SimpleMailMessage mensagem = mailSender.mensagensEnviadas.getFirst();
-        assertEquals("noreply@karvcoins.local", mensagem.getFrom());
-        assertEquals("aluno@moeda.local", mensagem.getTo()[0]);
+        assertEquals(1, mailSender.mensagensMimeEnviadas.size());
+        MimeMessage mensagem = mailSender.mensagensMimeEnviadas.getFirst();
+        assertEquals("noreply@karvcoins.local", mensagem.getFrom()[0].toString());
+        assertEquals("aluno@moeda.local", mensagem.getAllRecipients()[0].toString());
         assertEquals("[KarvCoins] Voc\u00ea recebeu moedas", mensagem.getSubject());
+
+        String conteudo = extrairConteudo(mensagem.getContent());
+        assertTrue(conteudo.contains("background-color:#031017"));
+        assertTrue(conteudo.contains("#0083a2"));
+        assertTrue(conteudo.contains("Mérito que vira oportunidade"));
+        assertTrue(conteudo.contains("Você recebeu 10 moedas"));
+        assertTrue(conteudo.contains("Seu saldo atual: 120 moedas"));
     }
 
     private static TransacaoNotificacaoDto transacao() {
@@ -61,8 +71,22 @@ class EmailNotificationServiceTest {
         );
     }
 
+    private static String extrairConteudo(Object conteudo) throws IOException, jakarta.mail.MessagingException {
+        if (conteudo instanceof String texto) {
+            return texto;
+        }
+        if (conteudo instanceof Multipart multipart) {
+            StringBuilder texto = new StringBuilder();
+            for (int i = 0; i < multipart.getCount(); i++) {
+                texto.append(extrairConteudo(multipart.getBodyPart(i).getContent()));
+            }
+            return texto.toString();
+        }
+        return "";
+    }
+
     private static class FakeJavaMailSender implements JavaMailSender {
-        private final List<SimpleMailMessage> mensagensEnviadas = new ArrayList<>();
+        private final List<MimeMessage> mensagensMimeEnviadas = new ArrayList<>();
 
         @Override
         public MimeMessage createMimeMessage() {
@@ -76,10 +100,14 @@ class EmailNotificationServiceTest {
 
         @Override
         public void send(MimeMessage mimeMessage) {
+            mensagensMimeEnviadas.add(mimeMessage);
         }
 
         @Override
         public void send(MimeMessage... mimeMessages) {
+            for (MimeMessage mimeMessage : mimeMessages) {
+                send(mimeMessage);
+            }
         }
 
         @Override
@@ -92,7 +120,6 @@ class EmailNotificationServiceTest {
 
         @Override
         public void send(SimpleMailMessage simpleMessage) {
-            mensagensEnviadas.add(new SimpleMailMessage(simpleMessage));
         }
 
         @Override
