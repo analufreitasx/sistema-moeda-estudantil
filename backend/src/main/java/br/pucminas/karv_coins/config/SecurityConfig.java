@@ -76,9 +76,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.frontend.base-url:http://localhost:4200}") String frontendBaseUrl
+    ) {
+        String allowedOrigin = frontendBaseUrl.strip();
+        if (allowedOrigin.endsWith("/")) {
+            allowedOrigin = allowedOrigin.substring(0, allowedOrigin.length() - 1);
+        }
+
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of(allowedOrigin));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
